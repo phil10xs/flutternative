@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -57,7 +58,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  String message = 'Unknown message.';
+
+  static const platform = MethodChannel('com.example.flutternative');
+  Future<void> _getMessage() async {
+    String messageFromNativeCode = 'Unknown message.';
+    try {
+      messageFromNativeCode =
+          await platform.invokeMethod("getMessageFromNativeCode");
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+
+    setState(() {
+      message = messageFromNativeCode;
+    });
+  }
+
   void _incrementCounter() {
+    _getMessage();
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -105,8 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Text(
+              'You have pushed the button to see message $message',
             ),
             Text(
               '$_counter',
